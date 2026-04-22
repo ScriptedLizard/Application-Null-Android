@@ -84,7 +84,6 @@ class _NotepadScreenState extends State<NotepadScreen>
   void _tickPhysics() {
     if (_canvasSize == Size.zero || _shapes.isEmpty) return;
     setState(() {
-      // Update positions
       for (int i = 0; i < _shapes.length; i++) {
         if (_draggingIndex == i) continue;
         final s = _shapes[i];
@@ -114,7 +113,7 @@ class _NotepadScreenState extends State<NotepadScreen>
         }
       }
 
-      // Shape-to-shape collision
+      // Shape collisions
       for (int i = 0; i < _shapes.length; i++) {
         for (int j = i + 1; j < _shapes.length; j++) {
           final a = _shapes[i];
@@ -122,30 +121,18 @@ class _NotepadScreenState extends State<NotepadScreen>
           final minDist = (a.size + b.size) / 2;
           final delta = b.position - a.position;
           final dist = delta.distance;
-
           if (dist < minDist && dist > 0) {
             final normal = delta / dist;
             final overlap = minDist - dist;
-
-            // Separate shapes
-            if (_draggingIndex != i) {
-              a.position -= normal * overlap * 0.5;
-            }
-            if (_draggingIndex != j) {
-              b.position += normal * overlap * 0.5;
-            }
-
-            // Exchange velocity along collision normal
+            if (_draggingIndex != i) a.position -= normal * overlap * 0.5;
+            if (_draggingIndex != j) b.position += normal * overlap * 0.5;
             final relVel = b.velocity - a.velocity;
             final velAlongNormal = relVel.dx * normal.dx + relVel.dy * normal.dy;
-
             if (velAlongNormal < 0) {
               final impulse = velAlongNormal * _bounce;
               final impulseVec = normal * impulse;
               if (_draggingIndex != i) a.velocity += impulseVec;
               if (_draggingIndex != j) b.velocity -= impulseVec;
-
-              // Transfer some angular velocity
               a.angularVelocity += impulse * 0.05;
               b.angularVelocity -= impulse * 0.05;
             }
@@ -155,18 +142,22 @@ class _NotepadScreenState extends State<NotepadScreen>
     });
   }
 
+  // Check if a point hits any shape
+  int? _hitTest(Offset point) {
+    for (int i = _shapes.length - 1; i >= 0; i--) {
+      if ((point - _shapes[i].position).distance < _shapes[i].size * 0.7) {
+        return i;
+      }
+    }
+    return null;
+  }
+
   void _spawnShape(ShapeType type) {
     HapticFeedback.lightImpact();
     final colors = [
-      Colors.red.shade400,
-      Colors.blue.shade400,
-      Colors.green.shade400,
-      Colors.orange.shade400,
-      Colors.purple.shade400,
-      Colors.teal.shade400,
-      Colors.pink.shade400,
-      Colors.amber.shade400,
-      Colors.cyan.shade400,
+      Colors.red.shade400, Colors.blue.shade400, Colors.green.shade400,
+      Colors.orange.shade400, Colors.purple.shade400, Colors.teal.shade400,
+      Colors.pink.shade400, Colors.amber.shade400, Colors.cyan.shade400,
       Colors.lime.shade400,
     ];
     setState(() {
@@ -203,7 +194,8 @@ class _NotepadScreenState extends State<NotepadScreen>
       backgroundColor: theme.background,
       appBar: AppBar(
         backgroundColor: theme.surface,
-        title: Text('Notepad', style: TextStyle(color: theme.onBackground, fontWeight: FontWeight.w600)),
+        title: Text('Notepad',
+            style: TextStyle(color: theme.onBackground, fontWeight: FontWeight.w600)),
         elevation: 0,
         actions: [
           AnimatedSwitcher(
@@ -212,31 +204,29 @@ class _NotepadScreenState extends State<NotepadScreen>
                 ? Padding(
                     key: const ValueKey('saved'),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Icon(Icons.check_circle_rounded, color: theme.primary, size: 18),
-                        const SizedBox(width: 4),
-                        Text('Saved', style: TextStyle(color: theme.primary, fontSize: 13)),
-                      ],
-                    ),
+                    child: Row(children: [
+                      Icon(Icons.check_circle_rounded, color: theme.primary, size: 18),
+                      const SizedBox(width: 4),
+                      Text('Saved',
+                          style: TextStyle(color: theme.primary, fontSize: 13)),
+                    ]),
                   )
                 : IconButton(
                     key: const ValueKey('save'),
-                    icon: Icon(Icons.save_outlined, color: theme.onBackground.withOpacity(0.7)),
-                    tooltip: 'Save note',
+                    icon: Icon(Icons.save_outlined,
+                        color: theme.onBackground.withOpacity(0.7)),
                     onPressed: _saveNote,
                   ),
           ),
           IconButton(
-            icon: Icon(Icons.delete_sweep_outlined, color: theme.onBackground.withOpacity(0.5)),
-            tooltip: 'Clear shapes',
+            icon: Icon(Icons.delete_sweep_outlined,
+                color: theme.onBackground.withOpacity(0.5)),
             onPressed: () => setState(() => _shapes.clear()),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Toolbar
           Container(
             color: theme.surface,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -268,78 +258,74 @@ class _NotepadScreenState extends State<NotepadScreen>
             ),
           ),
           Divider(height: 1, color: theme.onBackground.withOpacity(0.08)),
-          // Main area
           Expanded(
             child: LayoutBuilder(builder: (ctx, constraints) {
               _canvasSize = Size(constraints.maxWidth, constraints.maxHeight);
               return Stack(
                 children: [
-                  // Notepad - full area, tappable
+                  // TextField fills the whole area - always tappable
                   Positioned.fill(
-                    child: GestureDetector(
-                      onTap: () => _focusNode.requestFocus(),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                        child: TextField(
-                          controller: _textController,
-                          focusNode: _focusNode,
-                          maxLines: null,
-                          expands: true,
-                          textAlignVertical: TextAlignVertical.top,
-                          style: TextStyle(
-                            color: theme.onBackground,
-                            fontWeight: _boldActive ? FontWeight.bold : FontWeight.normal,
-                            fontSize: 16,
-                            height: 1.7,
-                          ),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'Tap to write something...',
-                            hintStyle: TextStyle(
-                              color: theme.onBackground.withOpacity(0.25),
-                              fontSize: 16,
-                            ),
-                          ),
-                          onChanged: (val) {
-                            if (_bulletActive && val.endsWith('\n')) {
-                              final newText = '${val}• ';
-                              _textController.value = TextEditingValue(
-                                text: newText,
-                                selection: TextSelection.collapsed(offset: newText.length),
-                              );
-                            }
-                          },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                      child: TextField(
+                        controller: _textController,
+                        focusNode: _focusNode,
+                        maxLines: null,
+                        expands: true,
+                        textAlignVertical: TextAlignVertical.top,
+                        style: TextStyle(
+                          color: theme.onBackground,
+                          fontWeight:
+                              _boldActive ? FontWeight.bold : FontWeight.normal,
+                          fontSize: 16,
+                          height: 1.7,
                         ),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Tap empty space to write...',
+                          hintStyle: TextStyle(
+                            color: theme.onBackground.withOpacity(0.25),
+                            fontSize: 16,
+                          ),
+                        ),
+                        onChanged: (val) {
+                          if (_bulletActive && val.endsWith('\n')) {
+                            final newText = '${val}• ';
+                            _textController.value = TextEditingValue(
+                              text: newText,
+                              selection: TextSelection.collapsed(
+                                  offset: newText.length),
+                            );
+                          }
+                        },
                       ),
                     ),
                   ),
-                  // Physics layer — only intercepts if touching a shape
+                  // Physics layer - only intercepts touches ON shapes
                   Positioned.fill(
-                    child: GestureDetector(
+                    child: Listener(
                       behavior: HitTestBehavior.translucent,
-                      onPanStart: (d) {
-                        for (int i = _shapes.length - 1; i >= 0; i--) {
-                          final s = _shapes[i];
-                          if ((s.position - d.localPosition).distance < s.size * 0.7) {
-                            _draggingIndex = i;
-                            _dragOffset = d.localPosition - s.position;
-                            _lastDragPos = d.localPosition;
-                            break;
-                          }
+                      onPointerDown: (e) {
+                        final hit = _hitTest(e.localPosition);
+                        if (hit != null) {
+                          _draggingIndex = hit;
+                          _dragOffset = e.localPosition - _shapes[hit].position;
+                          _lastDragPos = e.localPosition;
+                          _focusNode.unfocus();
                         }
                       },
-                      onPanUpdate: (d) {
+                      onPointerMove: (e) {
                         if (_draggingIndex != null) {
-                          _dragVelocity = d.localPosition - _lastDragPos;
-                          _lastDragPos = d.localPosition;
+                          _dragVelocity = e.localPosition - _lastDragPos;
+                          _lastDragPos = e.localPosition;
                           setState(() {
                             _shapes[_draggingIndex!].position =
-                                d.localPosition - _dragOffset;
+                                e.localPosition - _dragOffset;
                             _shapes[_draggingIndex!].velocity = Offset.zero;
                           });
                         }
                       },
-                      onPanEnd: (_) {
+                      onPointerUp: (_) {
                         if (_draggingIndex != null) {
                           _shapes[_draggingIndex!].velocity = _dragVelocity * 1.8;
                           _shapes[_draggingIndex!].angularVelocity =
@@ -364,7 +350,8 @@ class _NotepadScreenState extends State<NotepadScreen>
 
   Widget _fmtBtn(IconData icon, bool active, VoidCallback onTap, theme) {
     return IconButton(
-      icon: Icon(icon, color: active ? theme.primary : theme.onBackground.withOpacity(0.4)),
+      icon: Icon(icon,
+          color: active ? theme.primary : theme.onBackground.withOpacity(0.4)),
       onPressed: onTap,
       iconSize: 22,
     );
@@ -373,7 +360,6 @@ class _NotepadScreenState extends State<NotepadScreen>
   Widget _spawnBtn(IconData icon, ShapeType type, theme) {
     return IconButton(
       icon: Icon(icon, color: theme.primary),
-      tooltip: 'Spawn ${type.name}',
       onPressed: () => _spawnShape(type),
       iconSize: 22,
     );
@@ -406,8 +392,10 @@ class _ShapesPainter extends CustomPainter {
           break;
         case ShapeType.square:
           final half = s.size / 2;
-          final rect = Rect.fromLTWH(-half, -half, s.size, s.size);
-          final rRect = RRect.fromRectAndRadius(rect, const Radius.circular(8));
+          final rRect = RRect.fromRectAndRadius(
+            Rect.fromLTWH(-half, -half, s.size, s.size),
+            const Radius.circular(8),
+          );
           canvas.drawRRect(rRect.shift(const Offset(2, 4)), shadowPaint);
           canvas.drawRRect(rRect, paint);
           break;
