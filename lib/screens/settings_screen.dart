@@ -218,37 +218,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 10),
           // Fixed: theme names scroll with circles using same ListView
-          SizedBox(
-            height: 18,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: AppThemes.presets.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
-              itemBuilder: (ctx, i) {
-                final t = AppThemes.presets[i];
-                final selected = !provider.useCustom && provider.selectedIndex == i;
-                return SizedBox(
-                  width: 52,
-                  child: Text(
-                    t.name,
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: selected
-                          ? theme.primary
-                          : theme.onBackground.withOpacity(0.35),
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                    ),
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _customThemeBuilder(ThemeProvider provider, theme) {
     return Container(
