@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
@@ -12,11 +13,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Real settings
   bool _hapticsEnabled = true;
   bool _soundsEnabled = false;
-
-  // Fake settings (look real, do nothing)
   bool _cloudSync = false;
   bool _analytics = true;
   bool _autoUpdate = true;
@@ -32,6 +30,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   final List<String> _regions = ['Auto', 'US East', 'US West', 'EU Central', 'Asia Pacific', 'Void'];
 
+  void _haptic() {
+    if (_hapticsEnabled) HapticFeedback.lightImpact();
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
@@ -41,7 +43,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       backgroundColor: theme.background,
       appBar: AppBar(
         backgroundColor: theme.surface,
-        title: Text('Settings', style: TextStyle(color: theme.onBackground)),
+        title: Text('Settings',
+            style: TextStyle(color: theme.onBackground, fontWeight: FontWeight.w600)),
         elevation: 0,
       ),
       body: ListView(
@@ -52,33 +55,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 8),
           _customThemeBuilder(themeProvider, theme),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           _sectionHeader('General', theme),
           _card([
-            _switchTile('Haptic Feedback', 'Vibrate on interactions', _hapticsEnabled,
-                (v) => setState(() => _hapticsEnabled = v), theme, real: true),
+            _switchTile('Haptic Feedback', 'Vibrate on interactions', _hapticsEnabled, (v) {
+              setState(() => _hapticsEnabled = v);
+              HapticFeedback.mediumImpact();
+            }, theme),
             _divider(theme),
-            _switchTile('Sounds', 'Play UI sounds', _soundsEnabled,
-                (v) => setState(() => _soundsEnabled = v), theme, real: true),
+            _switchTile('Sounds', 'Play UI sounds (coming soon)', _soundsEnabled, (v) {
+              _haptic();
+              setState(() => _soundsEnabled = v);
+            }, theme),
             _divider(theme),
-            _switchTile('Background Refresh', 'Refresh content in background', _backgroundRefresh,
-                (v) => setState(() => _backgroundRefresh = v), theme),
+            _switchTile('Background Refresh', 'Refresh content in background', _backgroundRefresh, (v) {
+              _haptic();
+              setState(() => _backgroundRefresh = v);
+            }, theme),
             _divider(theme),
-            _switchTile('Notifications', 'Get notified about nothing', _notifications,
-                (v) => setState(() => _notifications = v), theme),
+            _switchTile('Notifications', 'Get notified about nothing', _notifications, (v) {
+              _haptic();
+              setState(() => _notifications = v);
+            }, theme),
           ], theme),
 
           const SizedBox(height: 16),
           _sectionHeader('Sync & Data', theme),
           _card([
-            _switchTile('Cloud Sync', 'Sync your nothing to the cloud', _cloudSync,
-                (v) => setState(() => _cloudSync = v), theme),
+            _switchTile('Cloud Sync', 'Sync your nothing to the cloud', _cloudSync, (v) {
+              _haptic();
+              setState(() => _cloudSync = v);
+            }, theme),
             _divider(theme),
-            _switchTile('Analytics', 'Help us improve (we won\'t)', _analytics,
-                (v) => setState(() => _analytics = v), theme),
+            _switchTile('Analytics', "Help us improve (we won't)", _analytics, (v) {
+              _haptic();
+              setState(() => _analytics = v);
+            }, theme),
             _divider(theme),
-            _switchTile('Data Saver', 'Use less data doing nothing', _dataSaver,
-                (v) => setState(() => _dataSaver = v), theme),
+            _switchTile('Data Saver', 'Use less data doing nothing', _dataSaver, (v) {
+              _haptic();
+              setState(() => _dataSaver = v);
+            }, theme),
             _divider(theme),
             _dropdownTile('Region', _selectedRegion, _regions,
                 (v) => setState(() => _selectedRegion = v!), theme),
@@ -87,23 +104,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 16),
           _sectionHeader('Advanced', theme),
           _card([
-            _switchTile('Reduced Motion', 'Less animations', _reducedMotion,
-                (v) => setState(() => _reducedMotion = v), theme),
+            _switchTile('Reduced Motion', 'Less animations', _reducedMotion, (v) {
+              _haptic();
+              setState(() => _reducedMotion = v);
+            }, theme),
             _divider(theme),
-            _switchTile('Auto Update', 'Keep app updated automatically', _autoUpdate,
-                (v) => setState(() => _autoUpdate = v), theme),
+            _switchTile('Auto Update', 'Keep app updated automatically', _autoUpdate, (v) {
+              _haptic();
+              setState(() => _autoUpdate = v);
+            }, theme),
             _divider(theme),
             _sliderTile('Performance Level', _performanceLevel,
                 (v) => setState(() => _performanceLevel = v), theme),
             _divider(theme),
-            _switchTile('Night Mode', 'Optimize for night use', _nightMode,
-                (v) => setState(() => _nightMode = v), theme),
+            _switchTile('Night Mode', 'Optimize for night use', _nightMode, (v) {
+              _haptic();
+              setState(() => _nightMode = v);
+            }, theme),
             _divider(theme),
-            _switchTile('Experimental Features', 'Enable features that don\'t exist', _experimentalFeatures,
-                (v) => setState(() => _experimentalFeatures = v), theme),
+            _switchTile('Experimental Features', "Enable features that don't exist",
+                _experimentalFeatures, (v) {
+              _haptic();
+              setState(() => _experimentalFeatures = v);
+            }, theme),
             _divider(theme),
-            _switchTile('Beta Program', 'Get early access to nothing', _betaProgram,
-                (v) => setState(() => _betaProgram = v), theme),
+            _switchTile('Beta Program', 'Get early access to nothing', _betaProgram, (v) {
+              _haptic();
+              setState(() => _betaProgram = v);
+            }, theme),
           ], theme),
 
           const SizedBox(height: 16),
@@ -111,21 +139,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _card([
             ListTile(
               title: Text('Version', style: TextStyle(color: theme.onBackground)),
-              trailing: Text('1.0.0 (null)', style: TextStyle(color: theme.onBackground.withOpacity(0.5))),
+              trailing: Text('1.0.0 (null)',
+                  style: TextStyle(color: theme.onBackground.withOpacity(0.5))),
             ),
             _divider(theme),
             ListTile(
               title: Text('Build', style: TextStyle(color: theme.onBackground)),
-              trailing: Text('0x00000000', style: TextStyle(color: theme.onBackground.withOpacity(0.5), fontFamily: 'monospace')),
+              trailing: Text('0x00000000',
+                  style: TextStyle(
+                      color: theme.onBackground.withOpacity(0.5),
+                      fontFamily: 'monospace')),
             ),
             _divider(theme),
             ListTile(
-              title: Text('Reset Everything', style: TextStyle(color: Colors.red.shade400)),
-              trailing: Icon(Icons.chevron_right, color: theme.onBackground.withOpacity(0.3)),
+              title: Text('Reset Everything',
+                  style: TextStyle(color: Colors.red.shade400)),
+              trailing: Icon(Icons.chevron_right,
+                  color: theme.onBackground.withOpacity(0.3)),
               onTap: () => _showResetDialog(theme),
             ),
           ], theme),
-
           const SizedBox(height: 32),
         ],
       ),
@@ -133,137 +166,154 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _themeSelector(ThemeProvider provider, theme) {
-    return Card(
-      color: theme.surface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Color Theme', style: TextStyle(color: theme.onBackground, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 48,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: AppThemes.presets.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (ctx, i) {
-                  final t = AppThemes.presets[i];
-                  final selected = !provider.useCustom && provider.selectedIndex == i;
-                  return GestureDetector(
-                    onTap: () => provider.selectPreset(i),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: t.primary,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: selected ? theme.onBackground : Colors.transparent,
-                          width: 3,
-                        ),
-                        boxShadow: selected
-                            ? [BoxShadow(color: t.primary.withOpacity(0.5), blurRadius: 8)]
-                            : null,
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.surface,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Color Theme',
+              style: TextStyle(
+                  color: theme.onBackground, fontWeight: FontWeight.w600, fontSize: 16)),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 56,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: AppThemes.presets.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (ctx, i) {
+                final t = AppThemes.presets[i];
+                final selected = !provider.useCustom && provider.selectedIndex == i;
+                return GestureDetector(
+                  onTap: () {
+                    _haptic();
+                    provider.selectPreset(i);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: t.primary,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: selected ? theme.onBackground : Colors.transparent,
+                        width: 3,
                       ),
-                      child: selected
-                          ? Icon(Icons.check, color: t.onPrimary, size: 20)
+                      boxShadow: selected
+                          ? [BoxShadow(color: t.primary.withOpacity(0.5), blurRadius: 10)]
                           : null,
                     ),
-                  );
-                },
-              ),
+                    child: selected
+                        ? Icon(Icons.check, color: t.onPrimary, size: 22)
+                        : null,
+                  ),
+                );
+              },
             ),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 20,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: AppThemes.presets.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (ctx, i) {
-                  final t = AppThemes.presets[i];
-                  final selected = !provider.useCustom && provider.selectedIndex == i;
-                  return SizedBox(
-                    width: 48,
-                    child: Text(
-                      t.name,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: selected
-                            ? theme.primary
-                            : theme.onBackground.withOpacity(0.4),
-                      ),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 10),
+          // Fixed: theme names scroll with circles using same ListView
+          SizedBox(
+            height: 18,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: AppThemes.presets.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (ctx, i) {
+                final t = AppThemes.presets[i];
+                final selected = !provider.useCustom && provider.selectedIndex == i;
+                return SizedBox(
+                  width: 52,
+                  child: Text(
+                    t.name,
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: selected
+                          ? theme.primary
+                          : theme.onBackground.withOpacity(0.35),
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     ),
-                  );
-                },
-              ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _customThemeBuilder(ThemeProvider provider, theme) {
-    return Card(
-      color: theme.surface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text('Custom Theme', style: TextStyle(color: theme.onBackground, fontWeight: FontWeight.w500)),
-                const Spacer(),
-                if (provider.useCustom)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: theme.primary.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text('Active', style: TextStyle(color: theme.primary, fontSize: 11)),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.surface,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('Custom Theme',
+                  style: TextStyle(
+                      color: theme.onBackground,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16)),
+              const Spacer(),
+              if (provider.useCustom)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: theme.primary.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _colorRow('Primary', provider.customPrimary, (c) => provider.updateCustomColor(primary: c), theme),
-            _colorRow('Background', provider.customBackground, (c) => provider.updateCustomColor(background: c), theme),
-            _colorRow('Surface', provider.customSurface, (c) => provider.updateCustomColor(surface: c), theme),
-            _colorRow('Text', provider.customOnBackground, (c) => provider.updateCustomColor(onBackground: c), theme),
-            _colorRow('Accent', provider.customAccent, (c) => provider.updateCustomColor(accent: c), theme),
-          ],
-        ),
+                  child: Text('Active',
+                      style: TextStyle(color: theme.primary, fontSize: 11)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _colorRow('Primary', provider.customPrimary,
+              (c) => provider.updateCustomColor(primary: c), theme),
+          _colorRow('Background', provider.customBackground,
+              (c) => provider.updateCustomColor(background: c), theme),
+          _colorRow('Surface', provider.customSurface,
+              (c) => provider.updateCustomColor(surface: c), theme),
+          _colorRow('Text', provider.customOnBackground,
+              (c) => provider.updateCustomColor(onBackground: c), theme),
+          _colorRow('Accent', provider.customAccent,
+              (c) => provider.updateCustomColor(accent: c), theme),
+        ],
       ),
     );
   }
 
   Widget _colorRow(String label, Color color, ValueChanged<Color> onChanged, theme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Text(label, style: TextStyle(color: theme.onBackground.withOpacity(0.7), fontSize: 14)),
+          Text(label,
+              style: TextStyle(
+                  color: theme.onBackground.withOpacity(0.7), fontSize: 15)),
           const Spacer(),
           GestureDetector(
             onTap: () => _pickColor(color, onChanged),
             child: Container(
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
-                border: Border.all(color: theme.onBackground.withOpacity(0.2)),
+                border: Border.all(color: theme.onBackground.withOpacity(0.15), width: 2),
               ),
             ),
           ),
@@ -288,7 +338,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
             FilledButton(
               onPressed: () {
                 onChanged(picked);
@@ -309,7 +361,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: const Text('Reset Everything?'),
         content: const Text('This will reset all settings to their default nothing.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
@@ -341,73 +394,115 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _sectionHeader(String title, theme) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
           color: theme.primary,
           fontSize: 11,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 1.2,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.4,
         ),
       ),
     );
   }
 
   Widget _card(List<Widget> children, theme) {
-    return Card(
-      color: theme.surface,
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.surface,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(children: children),
     );
   }
 
-  Widget _switchTile(String title, String sub, bool value, ValueChanged<bool> onChanged,
-      theme, {bool real = false}) {
-    return ListTile(
-      title: Text(title, style: TextStyle(color: theme.onBackground)),
-      subtitle: Text(
-        real ? sub : sub,
-        style: TextStyle(color: theme.onBackground.withOpacity(0.5), fontSize: 12),
+  Widget _switchTile(String title, String sub, bool value,
+      ValueChanged<bool> onChanged, theme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: TextStyle(
+                        color: theme.onBackground,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16)),
+                const SizedBox(height: 2),
+                Text(sub,
+                    style: TextStyle(
+                        color: theme.onBackground.withOpacity(0.45), fontSize: 13)),
+              ],
+            ),
+          ),
+          Transform.scale(
+            scale: 1.1,
+            child: Switch(value: value, onChanged: onChanged),
+          ),
+        ],
       ),
-      trailing: Switch(value: value, onChanged: onChanged),
     );
   }
 
   Widget _sliderTile(String title, double value, ValueChanged<double> onChanged, theme) {
-    return ListTile(
-      title: Text(title, style: TextStyle(color: theme.onBackground)),
-      subtitle: Slider(
-        value: value,
-        min: 1,
-        max: 5,
-        divisions: 4,
-        label: value.round().toString(),
-        onChanged: onChanged,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: TextStyle(
+                  color: theme.onBackground,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16)),
+          Slider(
+            value: value,
+            min: 1,
+            max: 5,
+            divisions: 4,
+            label: value.round().toString(),
+            onChanged: onChanged,
+          ),
+        ],
       ),
     );
   }
 
   Widget _dropdownTile(String title, String value, List<String> items,
       ValueChanged<String?> onChanged, theme) {
-    return ListTile(
-      title: Text(title, style: TextStyle(color: theme.onBackground)),
-      trailing: DropdownButton<String>(
-        value: value,
-        underline: const SizedBox(),
-        dropdownColor: theme.surface,
-        style: TextStyle(color: theme.onBackground),
-        items: items.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
-        onChanged: onChanged,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      child: Row(
+        children: [
+          Text(title,
+              style: TextStyle(
+                  color: theme.onBackground,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16)),
+          const Spacer(),
+          DropdownButton<String>(
+            value: value,
+            underline: const SizedBox(),
+            dropdownColor: theme.surface,
+            style: TextStyle(color: theme.onBackground),
+            items: items
+                .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                .toList(),
+            onChanged: onChanged,
+          ),
+        ],
       ),
     );
   }
 
   Widget _divider(theme) => Divider(
         height: 1,
-        indent: 16,
-        endIndent: 16,
-        color: theme.onBackground.withOpacity(0.08),
+        indent: 20,
+        endIndent: 20,
+        color: theme.onBackground.withOpacity(0.07),
       );
 }
