@@ -216,8 +216,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
           ),
-          const SizedBox(height: 10),
-          // Fixed: theme names scroll with circles using same ListView
+        ],
+      ),
+    );
+  }
 
   Widget _customThemeBuilder(ThemeProvider provider, theme) {
     return Container(
@@ -282,7 +284,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
-                border: Border.all(color: theme.onBackground.withOpacity(0.15), width: 2),
+                border: Border.all(
+                    color: theme.onBackground.withOpacity(0.15), width: 2),
               ),
             ),
           ),
@@ -389,7 +392,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _switchTile(String title, String sub, bool value,
       ValueChanged<bool> onChanged, theme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         children: [
           Expanded(
@@ -404,7 +407,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 2),
                 Text(sub,
                     style: TextStyle(
-                        color: theme.onBackground.withOpacity(0.45), fontSize: 13)),
+                        color: theme.onBackground.withOpacity(0.45),
+                        fontSize: 13)),
               ],
             ),
           ),
@@ -419,7 +423,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _sliderTile(String title, double value, ValueChanged<double> onChanged, theme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -444,7 +448,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _dropdownTile(String title, String value, List<String> items,
       ValueChanged<String?> onChanged, theme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         children: [
           Text(title,
